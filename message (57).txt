@@ -1,0 +1,155 @@
+-- Decompiled with the Synapse X Luau decompiler.
+
+local v1, v2, v3, v4, v5 = require(game.ReplicatedStorage.Modules.ScriptSet).get();
+local l__ContextActionService__6 = game:GetService("ContextActionService");
+local v7 = require(game.ReplicatedStorage.Modules.GunHandle);
+local l__Name__8 = script.Parent.Name;
+local v9 = {
+	Spread = "http://www.roblox.com/asset/?id=5047461617", 
+	Normal = "http://www.roblox.com/asset/?id=5047475498", 
+	Explosive = "http://www.roblox.com/asset/?id=5047462670"
+};
+if game.ReplicatedStorage:FindFirstChild("tradingHUB") then
+	return;
+end;
+local u1 = false;
+local u2 = v7.New(l__Name__8, script.Parent);
+local u3 = v9[v7:getIcons()[l__Name__8]];
+local u4 = false;
+local l__Parent__5 = script.Parent;
+v3.InputBegan:connect(function(p1, p2)
+	if u1 == false then
+		for v10, v11 in pairs(u2.Anims) do
+			v11:Stop();
+		end;
+		return;
+	end;
+	if p2 ~= true and u1 ~= false and (_G.check:inspect(v2) ~= false and _G.canuse ~= false) then
+		v4.Icon = u3;
+		if p1.UserInputType == Enum.UserInputType.MouseButton1 or p1.UserInputType == Enum.UserInputType.Touch then
+			if u2.IsAiming == false then
+				u2:Aim();
+				return;
+			elseif u2.IsAiming == true and u2.Reloaded == true and v7.revs[l__Name__8] == nil and v7.chargeables[l__Name__8] == nil then
+				u2:Fire();
+				return;
+			elseif u2.IsAiming == true and v7:getRevs()[l__Name__8] then
+				u4 = true;
+				local v12 = 0;
+				while true do
+					game["Run Service"].RenderStepped:wait();
+					if _G.check:inspect(v2) == false then
+						break;
+					end;
+					if u2.Reloaded ~= true then
+						break;
+					end;
+					if tick() - v12 >= 0.04 then
+						u2:Rev(true);
+						v12 = tick();
+					end;
+					if u4 == false then
+						break;
+					end;				
+				end;
+				u2:Rev(false);
+				return;
+			else
+				if u2.IsAiming == true and v7.chargeables[l__Name__8] ~= nil and u2.Reloaded == true then
+					u4 = true;
+					_G.canuse = false;
+					local v13 = v7.chargeables[l__Name__8][1];
+					local v14 = v7.chargeables[l__Name__8][2];
+					local v15 = v2.Humanoid:LoadAnimation(game.ReplicatedStorage.Modules.GunHandle.Guns:FindFirstChild(script.Parent.Name).charge);
+					v15:Play();
+					local v16 = u2:GetCharge();
+					local v17 = tick();
+					while true do
+						_G.canuse = false;
+						v2.Humanoid.WalkSpeed = 2;
+						v15:AdjustSpeed(1 + (tick() - v17) / v13);
+						game["Run Service"].Heartbeat:wait();
+						if (u4 == false or v13 <= tick() - v17) and v14 <= tick() - v17 then
+							break;
+						end;
+						if _G.check:inspect(v2) == false then
+							break;
+						end;
+						if l__Parent__5.Parent ~= v2 then
+							break;
+						end;					
+					end;
+					v15:Stop();
+					_G.canuse = true;
+					v16:FireServer();
+					if _G.check:inspect(v2) == true and l__Parent__5.Parent == v2 then
+						u2:Fire({
+							chargeTime = tick() - v17
+						});
+					end;
+					v2.Humanoid.WalkSpeed = 16;
+				end;
+				return;
+			end;
+		else
+			return;
+		end;
+	end;
+end);
+v3.InputEnded:connect(function(p3, p4)
+	if p4 == true then
+		return;
+	end;
+	if p3.UserInputType == Enum.UserInputType.MouseButton1 then
+		u4 = false;
+	end;
+end);
+if _G.mobile then
+	v3.TouchEnded:connect(function()
+		u4 = false;
+	end);
+end;
+local function u6()
+	if u2.Reloaded == false then
+		u2:Reload();
+	end;
+end;
+script.Parent.Equipped:Connect(function()
+	l__ContextActionService__6:BindAction("GunReload", u6, true, Enum.KeyCode.R, Enum.KeyCode.ButtonR1);
+	l__ContextActionService__6:SetTitle("GunReload", "Reload");
+	u2.Anims.idle:Play();
+	v4.Icon = u3;
+	u2.Equiped = true;
+	u2.Ready = true;
+	u1 = true;
+	if v2:findFirstChild(l__Name__8 .. "Back") then
+		v2:findFirstChild(l__Name__8 .. "Back"):Destroy();
+	end;
+	_G.keysetup:setup("Gun", { { "Armament Haki", "j" } });
+end);
+script.Parent.Unequipped:Connect(function()
+	u1 = false;
+	for v18, v19 in pairs(u2.Anims) do
+		v19:AdjustSpeed(1);
+		v19:Stop(0);
+	end;
+	u2.IsAiming = false;
+	u2.Equiped = false;
+	_G.TurnCharacterToMouse = false;
+	if v2:findFirstChild(l__Name__8 .. "Gun") then
+		v2:findFirstChild(l__Name__8 .. "Gun"):Destroy();
+	end;
+	v2.Humanoid.CameraOffset = Vector3.new(0, 0, 0);
+	v4.Icon = _G.normalCur;
+	l__ContextActionService__6:UnbindAction("GunReload");
+	_G.keysetup:Destroy();
+end);
+while true do
+	wait();
+	if v4.Icon == u3 and u1 == false then
+		if v2:FindFirstChildWhichIsA("Tool") and v9[v7:getIcons()[v2:FindFirstChildWhichIsA("Tool").Name]] == u3 then
+			break;
+		end;
+		v4.Icon = _G.normalCur;
+	end;
+end;
